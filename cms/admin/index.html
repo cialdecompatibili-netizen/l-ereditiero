@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f6fa;color:#222;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:#1a1a2e;color:white;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:fixed;top:0;left:0;right:0;z-index:50}
+.topbar-title{font-size:16px;font-weight:700;letter-spacing:.3px}
+.topbar-link{color:rgba(255,255,255,.7);text-decoration:none;font-size:12px;display:flex;align-items:center;gap:5px}
+.topbar-link:hover{color:white}
+.layout{display:flex;margin-top:52px;min-height:calc(100vh - 52px)}
+.sidebar{width:200px;background:#1e2130;position:fixed;top:52px;bottom:0;padding:16px 0;overflow-y:auto}
+.nav-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;padding:16px 20px 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:rgba(255,255,255,.65);font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:all .15s}
+.nav-item:hover{background:rgba(255,255,255,.07);color:white}
+.nav-item.active{background:rgba(108,99,255,.25);color:#a89fff;border-left:3px solid #6c63ff}
+.nav-item .icon{font-size:15px;width:20px;text-align:center}
+.main{margin-left:200px;padding:28px;flex:1;max-width:860px}
+.page{display:none}.page.active{display:block}
+.page-title{font-size:20px;font-weight:700;margin-bottom:20px;color:#1a1a2e}
+.card{background:white;border-radius:10px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card-title{font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px}
+.field{margin-bottom:14px}
+label{display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:4px}
+input[type=text],input[type=date],input[type=password],select,textarea{width:100%;padding:8px 11px;border:1.5px solid #e8e8e8;border-radius:7px;font-size:13px;font-family:inherit;background:#fafafa;color:#222;transition:border .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#6c63ff;background:#fff}
+textarea.md{min-height:280px;font-family:'Courier New',monospace;font-size:13px;line-height:1.8;resize:vertical}
+textarea.sm{min-height:180px;font-family:'Courier New',monospace;font-size:13px;line-height:1.8;resize:vertical}
+.hint{font-size:11px;color:#bbb;margin-top:3px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:#6c63ff;color:white}.btn-primary:hover{background:#5a52e0}
+.btn-secondary{background:#f0f0f0;color:#444}.btn-secondary:hover{background:#e5e5e5}
+.btn-danger{background:#fde8e8;color:#c0392b}.btn-danger:hover{background:#fbd0d0}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-group{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:4px}
+.msg{font-size:12px;padding:7px 12px;border-radius:6px;display:none;margin-top:8px}
+.msg.ok{background:#e6f9f0;color:#1a7a4a;display:block}
+.msg.err{background:#fde8e8;color:#c0392b;display:block}
+.token-box{background:#fffbeb;border:1.5px solid #fde68a;border-radius:10px;padding:18px 20px;margin-bottom:16px}
+.list-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f5f5f5;font-size:13px}
+.list-row:last-child{border-bottom:none}
+.cat-row{background:#f8f8ff;border:1px solid #e8e8ff;border-radius:8px;padding:12px;margin-bottom:8px}
+.menu-row{background:#f8fff8;border:1px solid #d0efd0;border-radius:8px;padding:10px;margin-bottom:8px;display:flex;gap:8px;align-items:center}
+.menu-row input{margin:0;flex:1}
+.badge{font-size:11px;background:#6c63ff;color:white;padding:2px 8px;border-radius:10px}
+.editor-toggle{display:flex;gap:0;margin-bottom:6px}
+.editor-toggle button{padding:5px 14px;font-size:12px;font-weight:600;border:1.5px solid #e8e8e8;background:#f5f5f5;color:#888;cursor:pointer;transition:all .15s}
+.editor-toggle button:first-child{border-radius:6px 0 0 6px}
+.editor-toggle button:last-child{border-radius:0 6px 6px 0;border-left:none}
+.editor-toggle button.active{background:#6c63ff;color:white;border-color:#6c63ff}
+.vis-toolbar{display:flex;flex-wrap:wrap;gap:4px;padding:7px 8px;background:#f5f5f5;border:1.5px solid #e8e8e8;border-bottom:none;border-radius:7px 7px 0 0}
+.vis-toolbar button{padding:4px 9px;font-size:13px;font-weight:700;border:1.5px solid #ddd;border-radius:5px;background:white;cursor:pointer;color:#333;transition:all .12s;min-width:30px}
+.vis-toolbar button:hover{background:#6c63ff;color:white;border-color:#6c63ff}
+.vis-toolbar select{padding:4px 7px;font-size:12px;border:1.5px solid #ddd;border-radius:5px;background:white;cursor:pointer}
+#vis-editor{min-height:260px;border:1.5px solid #e8e8e8;border-radius:0 0 7px 7px;padding:12px 14px;font-size:14px;line-height:1.8;outline:none;background:white;overflow-y:auto}
+.onboarding-overlay{position:fixed;inset:0;background:#f5f6fa;z-index:9999;display:none;align-items:center;justify-content:center;padding:24px}
+.onboarding-box{background:white;border-radius:16px;padding:40px 36px;max-width:440px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.10);text-align:center}
+.onboarding-logo{font-size:36px;margin-bottom:8px}
+.onboarding-title{font-size:22px;font-weight:700;color:#1a1a2e;margin-bottom:6px}
+.onboarding-sub{font-size:14px;color:#888;margin-bottom:24px;line-height:1.6}
+.onboarding-steps{text-align:left;background:#f8f8ff;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#555;line-height:1.9}
+.onboarding-input-wrap{position:relative;margin-bottom:10px}
+.onboarding-input-wrap input{width:100%;padding:12px 44px 12px 14px;border:1.5px solid #e8e8e8;border-radius:9px;font-size:14px;font-family:inherit;background:#fafafa;color:#222}
+.onboarding-input-wrap input:focus{outline:none;border-color:#6c63ff;background:#fff}
+.onboarding-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#aaa}
+.onboarding-link{font-size:12px;color:#6c63ff;text-decoration:none;display:inline-block;margin-bottom:20px}
+</style>
+</head>
+<body>
+
+<div id="onboarding-overlay" class="onboarding-overlay">
+  <div class="onboarding-box">
+    <div class="onboarding-logo">&#9997;</div>
+    <div class="onboarding-title">Benvenuto in cmspush</div>
+    <div class="onboarding-sub">Per iniziare hai bisogno di un <strong>token GitHub</strong>.<br>Ti serve solo la prima volta.</div>
+    <div class="onboarding-steps">
+      <strong>Come crearlo:</strong><br>
+      1. Clicca il link qui sotto<br>
+      2. Dai un nome tipo <em>cmspush</em><br>
+      3. Spunta <strong>repo</strong> &rarr; clicca <strong>Generate token</strong><br>
+      4. Copia e incolla qui sotto
+    </div>
+    <a href="https://github.com/settings/tokens/new?scopes=repo&amp;description=cmspush" target="_blank" class="onboarding-link">&#128273; Crea il tuo token GitHub &nearr;</a>
+    <div class="onboarding-input-wrap">
+      <input type="password" id="onboarding-token" placeholder="Incolla qui il token (ghp_...)">
+      <button class="onboarding-eye" onclick="var i=document.getElementById('onboarding-token');i.type=i.type=='password'?'text':'password'">&#128065;</button>
+    </div>
+    <div class="msg" id="msg-onboarding" style="margin-bottom:12px"></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="salvaTokenOnboarding()">Inizia a usare il CMS</button>
+  </div>
+</div>
+
+<div class="topbar">
+  <a id="topbar-admin-link" href="#" target="_self" class="topbar-title" style="text-decoration:none;color:white;cursor:pointer">&#9999;&#65039; cmspush Admin</a>
+  <div style="display:flex;align-items:center;gap:14px">
+    <a id="topbar-deploy-link" href="#" target="_blank" class="topbar-link" title="Vedi deploy su GitHub Actions">&#128640; Deploy &#8599;</a>
+    <a id="topbar-site-link" href="#" target="_blank" class="topbar-link">&#127760; Vai al sito &#8599;</a>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-label">Contenuti</div>
+    <button class="nav-item active" onclick="showPage('articoli',this)"><span class="icon">&#128221;</span>Articoli</button>
+    <button class="nav-item" onclick="showPage('pagine',this)"><span class="icon">&#128196;</span>Pagine</button>
+    <div class="nav-label">Impostazioni</div>
+    <button class="nav-item" onclick="showPage('menu',this)"><span class="icon">&#129517;</span>Menu</button>
+    <button class="nav-item" onclick="showPage('categorie',this)"><span class="icon">&#128193;</span>Categorie</button>
+    <button class="nav-item" onclick="showPage('token',this)"><span class="icon">&#128273;</span>Token</button>
+    <button class="nav-item" onclick="showPage('tema',this)"><span class="icon">&#127912;</span>Tema</button>
+    <button class="nav-item" onclick="showPage('impostazioni',this)"><span class="icon">&#9881;&#65039;</span>Impostazioni</button>
+    <div class="nav-label">Shop</div>
+    <button class="nav-item" onclick="showPage('prodotti',this)"><span class="icon">&#128722;</span>Prodotti</button>
+    <button class="nav-item" onclick="showPage('cat-prodotti',this)"><span class="icon">&#128230;</span>Categorie Shop</button>
+    <div class="nav-label">Sistema</div>
+    <button class="nav-item" id="nav-aggiornamenti" onclick="showPage('aggiornamenti',this)"><span class="icon">&#128260;</span>Aggiornamenti<span id="update-badge" style="display:none;margin-left:auto;background:#e74c3c;color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px">!</span></button>
+  </nav>
+
+  <main class="main">
+
+    <!-- ARTICOLI -->
+    <div class="page active" id="page-articoli">
+      <div class="page-title">&#128221; Articoli</div>
+      <div class="card">
+        <div class="card-title">Nuovo / Modifica articolo</div>
+        <div class="field"><label>Titolo *</label><input type="text" id="titolo" placeholder="Titolo dell'articolo"></div>
+        <div class="grid2">
+          <div class="field"><label>Data</label><input type="date" id="data"></div>
+          <div class="field"><label>Categoria *</label><select id="categorie"><option value="">— Seleziona —</option></select></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Tag <span class="hint" style="display:inline">separati da virgola</span></label><input type="text" id="tags" placeholder="jekyll, web"></div>
+          <div class="field"><label>Immagine teaser (URL)</label><input type="text" id="teaser" placeholder="https://..."></div>
+        </div>
+        <div class="field"><label>Excerpt SEO</label><input type="text" id="excerpt" placeholder="Descrizione breve per Google (max 160 caratteri)"></div>
+        <div class="field">
+          <label>Contenuto</label>
+          <div class="editor-toggle">
+            <button class="active" id="btn-visuale" onclick="setEditor('visuale')">&#9999;&#65039; Visuale</button>
+            <button id="btn-markdown" onclick="setEditor('markdown')">&#128291; HTML grezzo</button>
+          </div>
+          <div id="quill-box">
+            <div class="vis-toolbar">
+              <select onchange="fmtBlock(this.value);this.value=''">
+                <option value="">Paragrafo</option>
+                <option value="h1">Titolo 1</option>
+                <option value="h2">Titolo 2</option>
+                <option value="h3">Titolo 3</option>
+                <option value="p">Testo</option>
+              </select>
+              <button onclick="fmt('bold')" title="Grassetto"><b>B</b></button>
+              <button onclick="fmt('italic')" title="Corsivo"><i>I</i></button>
+              <button onclick="fmt('strikeThrough')" title="Barrato"><s>S</s></button>
+              <button onclick="fmt('insertUnorderedList')" title="Lista">&#8801;</button>
+              <button onclick="fmt('insertOrderedList')" title="Lista numerata">1.</button>
+              <button onclick="insertLink()" title="Link">&#128279;</button>
+              <button onclick="fmt('removeFormat')" title="Rimuovi formato">&#10005;</button>
+            </div>
+            <div id="vis-editor" contenteditable="true"></div>
+          </div>
+          <textarea class="md" id="corpo" placeholder="HTML grezzo..." style="display:none"></textarea>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="pubblica()">&#128640; Pubblica</button>
+          <button class="btn btn-secondary" onclick="nuovoArticolo()">&#10010; Nuovo</button>
+          <button class="btn btn-secondary btn-sm" onclick="anteprima()">&#128065; Anteprima</button>
+        </div>
+        <div class="msg" id="msg-art"></div>
+      </div>
+      <div class="card" id="preview-box" style="display:none">
+        <div class="card-title">Anteprima .md</div>
+        <pre id="preview-content" style="font-size:12px;line-height:1.7;white-space:pre-wrap;background:#f8f8f8;padding:14px;border-radius:7px;overflow-x:auto"></pre>
+      </div>
+      <div class="card">
+        <div class="card-title" style="display:flex;justify-content:space-between">Pubblicati <button class="btn btn-secondary btn-sm" onclick="caricaLista()">&#8635; Aggiorna</button></div>
+        <div id="lista-articoli"><span style="color:#bbb;font-size:13px">Clicca &#8635; per caricare</span></div>
+      </div>
+    </div>
+
+    <!-- PAGINE -->
+    <div class="page" id="page-pagine">
+      <div class="page-title">&#128196; Pagine</div>
+      <div class="card">
+        <div class="card-title" style="display:flex;justify-content:space-between">Pagine del sito <button class="btn btn-secondary btn-sm" onclick="caricaPagine()">&#8635; Aggiorna</button></div>
+        <div id="lista-pagine"><span style="color:#bbb;font-size:13px">Clicca &#8635; per caricare</span></div>
+      </div>
+      <div class="card" id="editor-pagina" style="display:none">
+        <div class="card-title">Modifica: <span id="nome-pagina" style="color:#6c63ff;text-transform:none"></span></div>
+        <div class="field"><label>Titolo</label><input type="text" id="pag-titolo"></div>
+        <div class="field">
+          <label>Contenuto</label>
+          <div class="editor-toggle">
+            <button class="active" id="btn-pag-visuale" onclick="setPagEditor('visuale')">&#9999;&#65039; Visuale</button>
+            <button id="btn-pag-html" onclick="setPagEditor('html')">&#128291; HTML grezzo</button>
+          </div>
+          <div id="pag-quill-box">
+            <div class="vis-toolbar">
+              <select onchange="fmtPag(this.value);this.value=''">
+                <option value="">Paragrafo</option>
+                <option value="h1">Titolo 1</option>
+                <option value="h2">Titolo 2</option>
+                <option value="h3">Titolo 3</option>
+                <option value="p">Testo</option>
+              </select>
+              <button onclick="document.getElementById('pag-vis-editor').focus();document.execCommand('bold')" title="Grassetto"><b>B</b></button>
+              <button onclick="document.getElementById('pag-vis-editor').focus();document.execCommand('italic')" title="Corsivo"><i>I</i></button>
+              <button onclick="document.getElementById('pag-vis-editor').focus();document.execCommand('strikeThrough')" title="Barrato"><s>S</s></button>
+              <button onclick="document.getElementById('pag-vis-editor').focus();document.execCommand('insertUnorderedList')" title="Lista">&#8801;</button>
+              <button onclick="document.getElementById('pag-vis-editor').focus();document.execCommand('insertOrderedList')" title="Lista numerata">1.</button>
+              <button onclick="insertLinkPag()" title="Link">&#128279;</button>
+              <button onclick="document.getElementById('pag-vis-editor').focus();document.execCommand('removeFormat')" title="Rimuovi formato">&#10005;</button>
+            </div>
+            <div id="pag-vis-editor" contenteditable="true" style="min-height:260px;border:1.5px solid #e8e8e8;border-radius:0 0 7px 7px;padding:12px 14px;font-size:14px;line-height:1.8;outline:none;background:white;overflow-y:auto"></div>
+          </div>
+          <textarea class="sm" id="pag-corpo" style="display:none"></textarea>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="salvaPagina()">&#128190; Salva</button>
+          <button class="btn btn-secondary" onclick="anteprimaPagina()">&#128065; Anteprima live</button>
+          <button class="btn btn-secondary" onclick="chiudiPagina()">&#10005; Annulla</button>
+        </div>
+        <div class="msg" id="msg-pag"></div>
+      </div>
+      <div class="card" id="preview-pagina-box" style="display:none">
+        <div class="card-title" style="display:flex;justify-content:space-between">
+          Anteprima live <button class="btn btn-secondary btn-sm" onclick="document.getElementById('preview-pagina-box').style.display='none'">&#10005;</button>
+        </div>
+        <iframe id="preview-pagina-frame" src="" style="width:100%;height:500px;border:none;border-radius:7px;background:#f5f6fa"></iframe>
+      </div>
+    </div>
+
+    <!-- MENU -->
+    <div class="page" id="page-menu">
+      <div class="page-title">&#129517; Menu</div>
+      <div class="card">
+        <div class="card-title" style="display:flex;justify-content:space-between">Voci menu <button class="btn btn-secondary btn-sm" onclick="caricaMenu()">&#8635; Aggiorna</button></div>
+        <div id="lista-menu"><span style="color:#bbb;font-size:13px">Clicca &#8635; per caricare</span></div>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid #f0f0f0">
+          <div class="grid2">
+            <div class="field"><label>Nome</label><input type="text" id="menu-nome" placeholder="es. Contatti"></div>
+            <div class="field"><label>URL</label><input type="text" id="menu-url" placeholder="es. /contatti/"></div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="aggiungiVoce()">+ Aggiungi voce</button>
+        </div>
+        <div class="btn-group" style="margin-top:12px">
+          <button class="btn btn-primary" onclick="salvaMenu()">&#128190; Salva menu</button>
+        </div>
+        <div class="msg" id="msg-menu"></div>
+      </div>
+    </div>
+
+    <!-- CATEGORIE -->
+    <div class="page" id="page-categorie">
+      <div class="page-title">&#128193; Categorie</div>
+      <div class="card">
+        <div id="lista-categorie"></div>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid #f0f0f0">
+          <div class="field"><label>Nome nuova categoria</label><input type="text" id="cat-nome" placeholder="es. Lifestyle"></div>
+          <button class="btn btn-secondary btn-sm" onclick="aggiungiCategoria()">+ Aggiungi</button>
+        </div>
+        <div class="btn-group" style="margin-top:12px">
+          <button class="btn btn-primary" onclick="salvaCategorie()">&#128190; Salva categorie</button>
+        </div>
+        <div class="msg" id="msg-cat"></div>
+      </div>
+    </div>
+
+    <!-- TOKEN -->
+    <div class="page" id="page-token">
+      <div class="page-title">&#128273; Token GitHub</div>
+      <div class="card">
+        <div class="field">
+          <label>Token (ghp_...)</label>
+          <div style="display:flex;gap:8px">
+            <input type="password" id="token-input" placeholder="Incolla il tuo token GitHub" style="flex:1">
+            <button class="btn btn-secondary btn-sm" onclick="toggleToken()">&#128065;</button>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="salvaToken()">&#128190; Salva</button>
+          <button class="btn btn-secondary" onclick="cancellaToken()">&#128465; Dimentica</button>
+        </div>
+        <div class="msg" id="msg-token"></div>
+        <div style="margin-top:14px;font-size:12px;color:#aaa">Il token è salvato solo nel tuo browser. <a href="https://github.com/settings/tokens/new?scopes=repo&description=CMS+Jekyll" target="_blank" style="color:#6c63ff">Crea nuovo token &#8599;</a></div>
+      </div>
+    </div>
+
+    <!-- TEMA -->
+    <div class="page" id="page-tema">
+      <div class="page-title">&#127912; Tema</div>
+      <div class="card">
+        <div class="card-title">Scegli skin Minimal Mistakes</div>
+        <div id="tema-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:18px"></div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="salvaTema()">&#128190; Applica tema</button>
+        </div>
+        <div class="msg" id="msg-tema"></div>
+        <div style="margin-top:14px;font-size:12px;color:#aaa">Il cambio tema aggiorna _config.yml e va live in ~60 secondi dopo il deploy con 2-PUBBLICA.bat.</div>
+      </div>
+    </div>
+
+    <!-- IMPOSTAZIONI -->
+    <div class="page" id="page-impostazioni">
+      <div class="page-title">&#9881;&#65039; Impostazioni sito</div>
+      <div class="card">
+        <div class="card-title">Identità sito</div>
+        <div class="grid2">
+          <div class="field"><label>Titolo sito</label><input type="text" id="cfg-title" placeholder="Il mio blog"></div>
+          <div class="field"><label>Email</label><input type="text" id="cfg-email" placeholder="tu@email.com"></div>
+        </div>
+        <div class="field"><label>Descrizione</label><input type="text" id="cfg-description" placeholder="Una breve descrizione del sito..."></div>
+        <div class="field">
+          <label>Base URL</label>
+          <input type="text" id="cfg-baseurl" placeholder='Lascia vuoto per sito principale — oppure /nome-repo per sottocartella'>
+          <div class="hint" style="display:block;margin-top:3px">&#9888;&#65039; Se il sito è su <strong>nome.github.io</strong> lascia vuoto. Se è su <strong>nome.github.io/repo</strong> scrivi <code>/repo</code>.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Autore</div>
+        <div class="grid2">
+          <div class="field"><label>Nome autore</label><input type="text" id="cfg-author-name" placeholder="Mario Rossi"></div>
+          <div class="field"><label>Avatar (URL immagine)</label><input type="text" id="cfg-avatar" placeholder="/assets/images/bio-photo.jpg"></div>
+        </div>
+        <div class="field"><label>Bio</label><input type="text" id="cfg-bio" placeholder="Una frase su di te..."></div>
+        <div class="grid2">
+          <div class="field"><label>Twitter</label><input type="text" id="cfg-twitter" placeholder="https://twitter.com/..."></div>
+          <div class="field"><label>Instagram</label><input type="text" id="cfg-instagram" placeholder="https://instagram.com/..."></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>GitHub</label><input type="text" id="cfg-github" placeholder="https://github.com/..."></div>
+          <div class="field"><label>Sito web</label><input type="text" id="cfg-website" placeholder="https://..."></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Pagina Home</div>
+        <div class="field">
+          <label>Pagina usata come Home</label>
+          <select id="cfg-homepage"><option value="">&#9203; Caricamento pagine...</option></select>
+          <div class="hint" style="display:block;margin-top:5px">La pagina selezionata sarà quella mostrata all'indirizzo /. Modificala dal tab Pagine.</div>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="salvaImpostazioni()">&#128190; Salva impostazioni</button>
+      </div>
+      <div class="msg" id="msg-cfg"></div>
+    </div>
+
+    <!-- AGGIORNAMENTI -->
+    <div class="page" id="page-aggiornamenti">
+      <div class="page-title">&#128260; Aggiornamenti</div>
+      <div class="card" id="update-card-check">
+        <div class="card-title">Versione CMS</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-size:13px;color:#555">Versione installata: <strong id="ver-locale">–</strong></div>
+            <div style="font-size:13px;color:#555;margin-top:4px">Versione disponibile: <strong id="ver-remota">–</strong></div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="controllaAggiornamenti()">&#8635; Controlla</button>
+        </div>
+        <div class="msg" id="msg-update" style="margin-top:12px"></div>
+      </div>
+      <div class="card" id="update-card-new" style="display:none;border:2px solid #6c63ff">
+        <div class="card-title" style="color:#6c63ff">&#10024; Aggiornamento disponibile</div>
+        <div id="update-notes" style="font-size:13px;color:#444;line-height:1.7;margin-bottom:16px"></div>
+        <button class="btn btn-primary" onclick="eseguiAggiornamento()" id="btn-aggiorna">&#11014;&#65039; Aggiorna ora</button>
+        <div class="msg" id="msg-update2" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    <!-- PRODOTTI -->
+    <div class="page" id="page-prodotti">
+      <div class="page-title">&#128722; Prodotti</div>
+      <div class="card">
+        <div class="card-title">Nuovo / Modifica prodotto</div>
+        <div class="field"><label>Titolo *</label><input type="text" id="prod-titolo" placeholder="Nome del prodotto"></div>
+        <div class="grid2">
+          <div class="field"><label>Prezzo (€) *</label><input type="text" id="prod-prezzo" placeholder="19.90"></div>
+          <div class="field"><label>Stock</label><input type="text" id="prod-stock" placeholder="50"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Categoria</label><select id="prod-categoria"><option value="">— Seleziona —</option></select></div>
+          <div class="field"><label>SKU</label><input type="text" id="prod-sku" placeholder="PROD-001"></div>
+        </div>
+        <div class="field"><label>Immagine (URL)</label><input type="text" id="prod-immagine" placeholder="https://..."></div>
+        <div class="field"><label>Descrizione</label><textarea class="sm" id="prod-corpo" placeholder="Descrizione del prodotto..."></textarea></div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="pubblicaProdotto()">&#128640; Salva prodotto</button>
+          <button class="btn btn-secondary" onclick="nuovoProdotto()">&#10010; Nuovo</button>
+        </div>
+        <div class="msg" id="msg-prod"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Prodotti pubblicati</div>
+        <div id="lista-prodotti"><em style="color:#bbb;font-size:13px">Caricamento...</em></div>
+      </div>
+    </div>
+
+    <!-- CATEGORIE SHOP -->
+    <div class="page" id="page-cat-prodotti">
+      <div class="page-title">&#128230; Categorie Shop</div>
+      <div class="card">
+        <div class="card-title">Aggiungi categoria</div>
+        <div class="grid2">
+          <div class="field"><label>Nome categoria *</label><input type="text" id="shopcat-nome" placeholder="es. Abbigliamento"></div>
+          <div class="field"><label>Slug *</label><input type="text" id="shopcat-slug" placeholder="es. abbigliamento"></div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="aggiungiCatShop()">&#10010; Aggiungi</button>
+        </div>
+        <div class="msg" id="msg-shopcat"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Categorie esistenti</div>
+        <div id="lista-cat-shop"><em style="color:#bbb;font-size:13px">Caricamento...</em></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="js/core.js"></script>
+<script src="js/token.js"></script>
+<script src="js/articoli.js"></script>
+<script src="js/pagine.js"></script>
+<script src="js/menu-categorie.js"></script>
+<script src="js/tema-impostazioni.js"></script>
+<script src="js/aggiornamenti.js"></script>
+<script src="js/shop.js"></script>
+<script>
+function initCMS(){
+  caricaCategorie();caricaLista();caricaPagine();caricaMenu();
+  caricaTema();caricaImpostazioni();controllaAggiornamenti();
+  caricaCatShop();caricaProdotti();
+}
+window.onload=function(){
+  document.getElementById('data').value=new Date().toISOString().split('T')[0];
+  document.getElementById('quill-box').style.display='block';
+  document.getElementById('corpo').style.display='none';
+  if(!tok()){document.getElementById('onboarding-overlay').style.display='flex';}
+  else{
+    document.getElementById('token-input').value=tok();
+    document.getElementById('token-input').placeholder='✅ Token presente';
+    initCMS();
+  }
+};
+</script>
+</body>
+</html>
