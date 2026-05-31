@@ -1,8 +1,8 @@
-title: AI_TITLE
-baseurl: "/cmspush-ai"
+title: L’Ereditiero
+baseurl: "/l-ereditiero"
 url: "https://cialdecompatibili-netizen.github.io"
-email: AI_EMAIL
-description: AI_DESCRIPTION
+email: 
+description: Un sito ironico e brillante dedicato alle avventure, ai drammi e ai privilegi di un erede moderno.
 minimal_mistakes_skin: default
 search: true
 
@@ -24,31 +24,31 @@ plugins:
   - jekyll-include-cache
 
 author:
-  name: AI_AUTHOR_NAME
+  name: Giacomo Valeri
   avatar: "/assets/images/bio-photo.jpg"
-  bio: AI_AUTHOR_BIO
+  bio: Narratore satirico, osservatore dei vizi umani e cronista ufficiale delle disavventure dell’alta società.
   links:
     - label: "Twitter"
       icon: "fab fa-fw fa-twitter-square"
-      url: "https://twitter.com/AI_TWITTER"
+      url: "https://twitter.com/"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-      url: "https://github.com/AI_GITHUB"
+      url: "https://github.com/"
     - label: "Instagram"
       icon: "fab fa-fw fa-instagram"
-      url: "https://instagram.com/AI_INSTAGRAM"
+      url: "https://instagram.com/"
 
 footer:
   links:
     - label: "Twitter"
       icon: "fab fa-fw fa-twitter-square"
-      url: "https://twitter.com/AI_TWITTER"
+      url: "https://twitter.com/"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-      url: "https://github.com/AI_GITHUB"
+      url: "https://github.com/"
     - label: "Instagram"
       icon: "fab fa-fw fa-instagram"
-      url: "https://instagram.com/AI_INSTAGRAM"
+      url: "https://instagram.com/"
 
 defaults:
   - scope:
